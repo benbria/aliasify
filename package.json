@@ -1,0 +1,29 @@
+{
+  "name": "aliasify",
+  "version": "1.0.0",
+  "description": "Rewrite require calls in browserify modules.",
+  "main": "./lib/aliasify.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benbria/aliasify.git"
+  },
+  "keywords": [
+    "browserify",
+    "alias"
+  ],
+  "author": "Jason Walton (https://github.com/jwalton)",
+  "contributors": [
+    "Jason Walton <dev@lucid.thedreaming.org> (https://github.com/jwalton)"
+  ],
+  "license": "MIT",
+  "directories": {
+    "lib": "./lib"
+  },
+  "dependencies": {
+    "browserify-transform-tools": "git://github.com/benbria/browserify-transform-tools"
+  },
+  "devDependencies": {
+    "coffee-script": "1.6.3",
+    "mocha": "1.15.0"
+  }
+}

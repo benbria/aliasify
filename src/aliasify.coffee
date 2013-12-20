@@ -7,9 +7,9 @@ module.exports = transformTools.makeRequireTransform "aliasify", (args, opts, cb
         replacement = config[args[0]]
 
         # Resolve the new file relative to the file doing the requiring.
-        replacement = path.resolve opts.configDir, replacement
+        replacement = path.resolve opts.configData.configDir, replacement
         fileDir = path.dirname opts.file
-        relative = path.relative fileDir, replacement
+        relative = "./#{path.relative fileDir, replacement}"
 
         cb null, "require('#{relative}')"
     else

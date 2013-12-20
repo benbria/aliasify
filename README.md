@@ -12,7 +12,9 @@ To use, add a section to your package.json:
 
     {
         "aliasify": {
-            "d3": "./shims/d3.js"
+            aliases: {
+                "d3": "./shims/d3.js"
+            }
         }
     }
 
@@ -37,8 +39,14 @@ Configuration is done via package.json.  You can either put your configuration d
 Then in aliasifyConfig.js:
 
     module.exports = {
-        "d3": "./shims/d3.js"
+        aliases: {
+            "d3": "./shims/d3.js"
+        }
     };
 
+Note that using a js file means you can change your configuration based on environment variables.
 
+Configuration options:
+* `aliases` - An object mapping aliases to their replacements.
+* `verbose` - If true, then aliasify will print modificiations it is making to stdout.
 

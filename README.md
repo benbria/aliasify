@@ -14,6 +14,7 @@ To use, add a section to your package.json:
         "aliasify": {
             aliases: {
                 "d3": "./shims/d3.js"
+                "underscore": "lodash"
             }
         }
     }
@@ -21,11 +22,16 @@ To use, add a section to your package.json:
 Now if you have a file in src/browserify/index.js which looks like:
 
     d3 = require('d3')
+    _ = require('underscore')
     ...
 
 This will automatically be transformed to:
 
     d3 = require('../../shims/d3.js')
+    _ = require('lodash')
+    ...
+
+Any replacement that starts with a "." will be resolved as a relative path (as "d3" above.)  Replacements that start with any other character will be replaced verbatim (as with "underscore" above.)
 
 Configuration
 =============
@@ -41,7 +47,8 @@ Then in aliasifyConfig.js:
     module.exports = {
         aliases: {
             "d3": "./shims/d3.js"
-        }
+        },
+        verbose: false
     };
 
 Note that using a js file means you can change your configuration based on environment variables.

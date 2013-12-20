@@ -7,14 +7,15 @@ module.exports = transformTools.makeRequireTransform "aliasify", (args, opts, cb
     if (args.length > 0) and aliases? and aliases[args[0]]?
         replacement = aliases[args[0]]
 
-        # Resolve the new file relative to the file doing the requiring.
-        replacement = path.resolve opts.configData.configDir, replacement
-        fileDir = path.dirname opts.file
-        relative = "./#{path.relative fileDir, replacement}"
+        if replacement.length > 0 and replacement[0] is '.'
+            # Resolve the new file relative to the file doing the requiring.
+            replacement = path.resolve opts.configData.configDir, replacement
+            fileDir = path.dirname opts.file
+            replacement = "./#{path.relative fileDir, replacement}"
 
         if verbose
-            console.log "aliasify - #{opts.file}: replacing #{args[0]} with #{relative}"
+            console.log "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"
 
-        cb null, "require('#{relative}')"
+        cb null, "require('#{replacement}')"
     else
         cb()

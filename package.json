@@ -20,7 +20,7 @@
     "lib": "./lib"
   },
   "dependencies": {
-    "browserify-transform-tools": "git://github.com/benbria/browserify-transform-tools"
+    "browserify-transform-tools": "~1.0.1"
   },
   "devDependencies": {
     "coffee-script": "1.6.3",

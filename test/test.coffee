@@ -38,3 +38,26 @@ describe "aliasify", ->
                 _ = require("underscore");
             """
             done()
+
+    it "should allow paths after an alias", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
+
+        aliasifyWithConfig = aliasify.configure {
+            aliases: {
+                "d3": "./foo/"
+            },
+            configDir: path.resolve __dirname, "../testFixtures/test"
+        }
+
+        content = """
+            d3 = require("d3/bar.js");
+        """
+        expectedContent = """
+            d3 = require('./../foo/bar.js');
+        """
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, {content}, (err, result) ->
+            return done err if err
+            assert.equal result, expectedContent
+            done()
+

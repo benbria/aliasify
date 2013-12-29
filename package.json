@@ -1,6 +1,6 @@
 {
   "name": "aliasify",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Rewrite require calls in browserify modules.",
   "main": "./lib/aliasify.js",
   "repository": {
@@ -20,7 +20,7 @@
     "lib": "./lib"
   },
   "dependencies": {
-    "browserify-transform-tools": "~1.0.1"
+    "browserify-transform-tools": "~1.1.0"
   },
   "devDependencies": {
     "coffee-script": "1.6.3",

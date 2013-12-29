@@ -36,7 +36,7 @@ Any replacement that starts with a "." will be resolved as a relative path (as "
 Configuration
 =============
 
-Configuration is done via package.json.  You can either put your configuration directly in package.json, as in the example above, or you can use a json, js.  In your package.json:
+Configuration can be loaded in multiple ways;  You can put your configuration directly in package.json, as in the example above, or you can use an external json or js file.  In your package.json:
 
     {
         "aliasify": "./aliasifyConfig.js"
@@ -53,7 +53,21 @@ Then in aliasifyConfig.js:
 
 Note that using a js file means you can change your configuration based on environment variables.
 
+Alternatively, if you're using the Browserify API, you can configure your aliasify programatically:
+
+    aliasify = require('aliasify').configure({
+        aliases: {
+            "d3": "./shims/d3.js"
+        },
+        configDir: __dirname,
+        verbose: false
+    });
+
+note that `configure()` returns a new `aliasify` instance.
+
 Configuration options:
 * `aliases` - An object mapping aliases to their replacements.
 * `verbose` - If true, then aliasify will print modificiations it is making to stdout.
+* `configDir` - An absolute path to resolve relative paths against.  If you're using package.json,
+  this will automatically be filled in for you with the directory containing package.json.
 

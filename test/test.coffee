@@ -21,3 +21,20 @@ describe "aliasify", ->
             return done err if err
             assert.equal result, "d3 = require('./../shims/d3.js');"
             done()
+
+    it "should allow configuration to be specified programatically", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
+        aliasifyWithConfig = aliasify.configure {
+            aliases: {
+                "d3": "./foo/bar.js"
+            },
+            configDir: path.resolve __dirname, "../testFixtures/test"
+        }
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, """
+                d3 = require('./../foo/bar.js');
+                _ = require("underscore");
+            """
+            done()

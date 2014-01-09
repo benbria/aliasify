@@ -25,5 +25,9 @@
   "devDependencies": {
     "coffee-script": "1.6.3",
     "mocha": "1.15.0"
+  },
+  "scripts": {
+    "test": "cake test",
+    "build": "cake build"
   }
 }

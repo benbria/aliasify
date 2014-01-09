@@ -61,3 +61,18 @@ describe "aliasify", ->
             assert.equal result, expectedContent
             done()
 
+    it "passes anything that isn't javascript along", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/package.json"
+        transformTools.runTransform aliasify, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, """{
+                "aliasify": {
+                    "aliases": {
+                        "d3": "./shims/d3.js",
+                        "underscore": "lodash"
+                    }
+                }
+            }
+            """
+            done()
+

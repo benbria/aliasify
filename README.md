@@ -1,4 +1,4 @@
-Aliasify is a [transform](https://github.com/substack/node-browserify#btransformtr) for [browserify](https://github.com/substack/node-browserify) which lets you rewrite calls to `require`.
+Aliasify is a [transform](https://github.com/substack/node-browserify#btransformtr) for [browserify](https://github.com/substack/node-browserify) which lets you rewrite calls to `require`. This is an alternative, with more configuration options, to the [`browser` field](https://gist.github.com/defunctzombie/4339901#replace-specific-files---advanced) [interpreted](https://github.com/substack/node-browserify#packagejson) by browserify.
 
 Installation
 ============

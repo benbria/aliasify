@@ -34,6 +34,6 @@ module.exports = transformTools.makeRequireTransform "aliasify", includeExtensio
             if verbose
                 console.log "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"
 
-            result = "require('#{replacement}')"
+            result = "require('#{replacement.replace(/\\/gi,"/")}')"
 
     done null, result

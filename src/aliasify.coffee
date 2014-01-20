@@ -1,8 +1,6 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
-ALLOWED_EXTENSIONS = [".js", ".coffee", ".coffee.md", ".litcoffee", "._js", "._coffee"]
-
 getReplacement = (file, aliases)->
     if aliases[file]
         return aliases[file]
@@ -13,7 +11,7 @@ getReplacement = (file, aliases)->
             return pkg+fileParts[2]
     return null
 
-module.exports = transformTools.makeRequireTransform "aliasify", includeExtensions: ALLOWED_EXTENSIONS, (args, opts, done) ->
+module.exports = transformTools.makeRequireTransform "aliasify", jsFilesOnly: true, (args, opts, done) ->
     if !opts.config then return done new Error("Could not find configuration for aliasify")
     aliases = opts.config.aliases
     verbose = opts.config.verbose

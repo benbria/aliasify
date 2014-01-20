@@ -3,9 +3,17 @@ assert = require 'assert'
 transformTools = require 'browserify-transform-tools'
 
 aliasify = require '../src/aliasify'
+testDir = path.resolve __dirname, "../testFixtures/test"
+testWithRelativeConfigDir = path.resolve __dirname, "../testFixtures/testWithRelativeConfig"
 
 describe "aliasify", ->
+    cwd = process.cwd()
+
+    after ->
+        process.chdir cwd
+
     it "should correctly transform a file", (done) ->
+        process.chdir testDir
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
         transformTools.runTransform aliasify, jsFile, (err, result) ->
             return done err if err
@@ -16,6 +24,7 @@ describe "aliasify", ->
             done()
 
     it "should correctly transform a file when the configuration is in a different directory", (done) ->
+        process.chdir testWithRelativeConfigDir
         jsFile = path.resolve __dirname, "../testFixtures/testWithRelativeConfig/src/index.js"
         transformTools.runTransform aliasify, jsFile, (err, result) ->
             return done err if err

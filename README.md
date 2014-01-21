@@ -1,4 +1,4 @@
-Aliasify is a [transform](https://github.com/substack/node-browserify#btransformtr) for [browserify](https://github.com/substack/node-browserify) which lets you rewrite calls to `require`. This is an alternative, with more configuration options, to the [`browser` field](https://gist.github.com/defunctzombie/4339901#replace-specific-files---advanced) [interpreted](https://github.com/substack/node-browserify#packagejson) by browserify.
+Aliasify is a [transform](https://github.com/substack/node-browserify#btransformtr) for [browserify](https://github.com/substack/node-browserify) which lets you rewrite calls to `require`.
 
 Installation
 ============
@@ -70,3 +70,11 @@ Configuration options:
 * `verbose` - If true, then aliasify will print modificiations it is making to stdout.
 * `configDir` - An absolute path to resolve relative paths against.  If you're using package.json, this will automatically be filled in for you with the directory containing package.json.  If you're using a .js file for configuration, set this to `__dirname`.
 * `appliesTo` - Controls which files will be transformed.  By default, only JS type files will be transformed ('.js', '.coffee', etc...).  See [browserify-trasnform-tools documentation](https://github.com/benbria/browserify-transform-tools/wiki/Transform-Configuration#common-configuration) for details.
+
+Alternatives
+============
+
+`aliasify` is essentially a fancy version of the [`browser` field](https://gist.github.com/defunctzombie/4339901#replace-specific-files---advanced) from package.json, which is [interpreted](https://github.com/substack/node-browserify#packagejson) by browserify.
+
+Using the `browser` field is probably going to be faster, as it doesn't involve running a transform on each of your files.  On the other hand, `aliasify` gives you a finer degree of control and can be run before other transforms (for example, you can run `aliasify` before [debowerify](https://github.com/eugeneware/debowerify), which will let you replace certain components that debowerify would otherwise replace.)
+

@@ -29,6 +29,10 @@ module.exports = transformTools.makeRequireTransform "aliasify", jsFilesOnly: tr
                 fileDir = path.dirname opts.file
                 replacement = "./#{path.relative fileDir, replacement}"
 
+            if replacement.relative?
+                replacement = replacement.relative
+
+
             if verbose
                 console.log "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"
 

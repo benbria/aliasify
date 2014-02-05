@@ -85,3 +85,21 @@ describe "aliasify", ->
             """
             done()
 
+    it "passes supports relative path option", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/bar/bar.js"
+               
+        aliasifyWithConfig = aliasify.configure {
+            aliases: {
+                "foo": { relative: "../foo/foo.js" }
+            }
+        }
+
+        expectedContent = """
+            var foo = require('../foo/foo.js');
+        """
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, expectedContent
+            done()
+

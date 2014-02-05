@@ -23,15 +23,14 @@ module.exports = transformTools.makeRequireTransform "aliasify", jsFilesOnly: tr
     if file? and aliases?
         replacement = getReplacement(file, aliases)
         if replacement?
-            if /^\./.test(replacement)
-                # Resolve the new file relative to the file doing the requiring.
-                replacement = path.resolve configDir, replacement
-                fileDir = path.dirname opts.file
-                replacement = "./#{path.relative fileDir, replacement}"
-
             if replacement.relative?
                 replacement = replacement.relative
 
+            else if /^\./.test(replacement)
+                # Resolve the new file relative to the configuration file.
+                replacement = path.resolve configDir, replacement
+                fileDir = path.dirname opts.file
+                replacement = "./#{path.relative fileDir, replacement}"
 
             if verbose
                 console.log "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"

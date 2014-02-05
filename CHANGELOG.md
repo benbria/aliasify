@@ -1,3 +1,4 @@
+* 1.4.0 - Add support for `relative:` aliases. (courtesy of [mkuklis](https://github.com/mkuklis).)
 * 1.3.1 - Use browserify-transform-tools to decide which files are JS or not.
 * 1.3.0 - Upgrade to browserify-transform-tools v1.2.1.
 * 1.2.3 - Fix for Windows backslash problem (courtesy of [LinuxBasic](httsp://github.com/LinuxBasic).)

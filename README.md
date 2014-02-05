@@ -71,6 +71,27 @@ Configuration options:
 * `configDir` - An absolute path to resolve relative paths against.  If you're using package.json, this will automatically be filled in for you with the directory containing package.json.  If you're using a .js file for configuration, set this to `__dirname`.
 * `appliesTo` - Controls which files will be transformed.  By default, only JS type files will be transformed ('.js', '.coffee', etc...).  See [browserify-trasnform-tools documentation](https://github.com/benbria/browserify-transform-tools/wiki/Transform-Configuration#common-configuration) for details.
 
+Relative Requires
+=================
+
+When you specify:
+
+    aliases: {
+        "d3": "./shims/d3.js"
+    }
+
+The "./" means this will be resolved relative to the configuration file which contains the line.
+Sometimes it is desirable to literally replace an alias; to resolve the alias relative to the
+file which is doing the `require` call.  In this case you can do:
+
+    aliases: {
+        "d3": {"relative": "./shims/d3.js"}
+    }
+
+This will cause all occurences of `require("d3")` to be replaced with `require("./shims/d3.js")`,
+regardless of where those files are in the directory tree.
+
+
 Alternatives
 ============
 

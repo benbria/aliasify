@@ -40,6 +40,6 @@ module.exports = transformTools.makeRequireTransform "aliasify", jsFilesOnly: tr
             else
                 replacement = replacement.replace(/\\/gi, "/")
 
-            result = "require('#{replacement.replace(/\\/gi,"/")}')"
+            result = "require('#{replacement}')"
 
     done null, result

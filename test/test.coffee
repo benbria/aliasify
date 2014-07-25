@@ -136,3 +136,24 @@ describe "aliasify", ->
                 react2 = require('react/addons');
             """
             done()
+
+    it "should correctly resolve absolute paths", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/foo/foo.js"
+
+        aliasifyWithConfig = aliasify.configure {
+            aliases: {
+                "foo": jsFile
+            }
+        }
+
+        content = """
+            foo = require("foo");
+        """
+        expectedContent = """
+            foo = require('#{jsFile.replace(/\\/gi, '\\\\')}');
+        """
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, {content}, (err, result) ->
+            return done err if err
+            assert.equal result, expectedContent
+            done()

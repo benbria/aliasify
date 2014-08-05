@@ -62,6 +62,9 @@ Alternatively, if you're using the Browserify API, you can configure your aliasi
         configDir: __dirname,
         verbose: false
     });
+    
+    var b = browserify();
+    b.transform(aliasify);
 
 note that `configure()` returns a new `aliasify` instance.
 

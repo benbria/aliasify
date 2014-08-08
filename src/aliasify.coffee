@@ -35,6 +35,11 @@ module.exports = transformTools.makeRequireTransform "aliasify", jsFilesOnly: tr
             if verbose
                 console.log "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"
 
-            result = "require('#{replacement.replace(/\\/gi,"/")}')"
+            if /^[a-zA-Z]:\\/.test(replacement)
+                replacement = replacement.replace(/\\/gi, "\\\\")
+            else
+                replacement = replacement.replace(/\\/gi, "/")
+
+            result = "require('#{replacement}')"
 
     done null, result

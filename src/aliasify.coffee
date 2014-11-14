@@ -11,7 +11,7 @@ getReplacement = (file, aliases)->
             return pkg+fileParts[2]
     return null
 
-module.exports = transformTools.makeRequireTransform "aliasify", jsFilesOnly: true, (args, opts, done) ->
+module.exports = transformTools.makeRequireTransform "aliasify", {jsFilesOnly: true, fromSourceFileDir: true}, (args, opts, done) ->
     if !opts.config then return done new Error("Could not find configuration for aliasify")
     aliases = opts.config.aliases
     verbose = opts.config.verbose

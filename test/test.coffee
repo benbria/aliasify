@@ -87,7 +87,7 @@ describe "aliasify", ->
 
     it "passes supports relative path option", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/bar/bar.js"
-               
+
         aliasifyWithConfig = aliasify.configure {
             aliases: {
                 "foo": { relative: "../foo/foo.js" }
@@ -101,5 +101,12 @@ describe "aliasify", ->
         transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
             return done err if err
             assert.equal result, expectedContent
+            done()
+
+    it "supports nested packages", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/testNestedPackages/node_modules/inner-package/foo/foo.js"
+        transformTools.runTransform aliasify, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, "d3 = require('./../shims/d3.js');"
             done()
 

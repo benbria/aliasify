@@ -110,3 +110,12 @@ describe "aliasify", ->
             assert.equal result, "d3 = require('./../shims/d3.js');"
             done()
 
+    it "supports the react case that everyone is asking for", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/react/includeReact.js"
+        transformTools.runTransform aliasify, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, """
+                react1 = require('react/addons');
+                react2 = require('react/addons');
+            """
+            done()

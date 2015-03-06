@@ -1,4 +1,7 @@
-* 1.5.0 - Add support for passing configuration directly via browserify (added in Browserify v3.41.0?)
+* 1.6.0
+    * Add support for passing configuration directly via browserify (added in Browserify v3.41.0?)
+    * Verbose messages now log to stderr (courtesy [Zaim Bakar](https://github.com/zaim))
+* 1.5.0 - Use 'fromSourceFileDir' from browserify-transform-tools to correctly resolves package.json (courtesy of [Justin Howard](https://github.com/justinhoward))
 * 1.4.0 - Add support for `relative:` aliases. (courtesy of [mkuklis](https://github.com/mkuklis).)
 * 1.3.1 - Use browserify-transform-tools to decide which files are JS or not.
 * 1.3.0 - Upgrade to browserify-transform-tools v1.2.1.

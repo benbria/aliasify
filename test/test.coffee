@@ -137,6 +137,29 @@ describe "aliasify", ->
             """
             done()
 
+    it "should correctly resolve Windows absolute paths", (done) ->
+        jsFile = "c:\\foo.js"
+
+        aliasifyWithConfig = aliasify.configure {
+            aliases: {
+                "foo": jsFile
+            }
+        }
+
+        content = """
+            foo = require("foo");
+        """
+        # Note the \\\\ here, because this is in "s, but this resolves to a double \\.
+        # The double \\ is still needed, since \\ inside of ''s resolves to a single \ in the end.
+        expectedContent = """
+            foo = require('c:\\\\foo.js');
+        """
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, {content}, (err, result) ->
+            return done err if err
+            assert.equal result, expectedContent
+            done()
+
     it "should correctly resolve absolute paths", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/foo/foo.js"
 

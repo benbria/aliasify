@@ -36,14 +36,14 @@ describe "aliasify", ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
         aliasifyConfig = {
             aliases: {
-                "d3": "./foo/bar.js"
+                "d3": "./foo/baz.js"
             }
         }
 
         transformTools.runTransform aliasify, jsFile, {config: aliasifyConfig}, (err, result) ->
             return done err if err
             assert.equal result, """
-                d3 = require('./../foo/bar.js');
+                d3 = require('./../foo/baz.js');
                 _ = require("underscore");
             """
             done()

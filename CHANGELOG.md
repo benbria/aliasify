@@ -1,3 +1,4 @@
+* 1.7.0 - Correct handling of absolute paths on Windows (courtesy [Ronald M. Clifford](https://github.com/roncli))
 * 1.6.0
     * Add support for passing configuration directly via browserify (added in Browserify v3.41.0?)
     * Verbose messages now log to stderr (courtesy [Zaim Bakar](https://github.com/zaim))

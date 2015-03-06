@@ -27,8 +27,8 @@
     "mocha": "^2.1.0"
   },
   "scripts": {
-    "test": "cake test",
-    "prepublish": "cake build",
-    "build": "cake build"
+    "test": "mocha test",
+    "prepublish": "coffee -c -o lib src && mocha test",
+    "build": "coffee -c -o lib src"
   }
 }

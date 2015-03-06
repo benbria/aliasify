@@ -55,18 +55,18 @@ Note that using a js file means you can change your configuration based on envir
 
 Alternatively, if you're using the Browserify API, you can configure your aliasify programatically:
 
-    aliasify = require('aliasify').configure({
+    aliasifyConfig = {
         aliases: {
             "d3": "./shims/d3.js"
         },
-        configDir: __dirname,
         verbose: false
-    });
-    
-    var b = browserify();
-    b.transform(aliasify);
+    }
 
-note that `configure()` returns a new `aliasify` instance.
+    var b = browserify();
+    b.transform(aliasify, aliasifyConfig);
+
+note that using the browserify API, './shims/d3.js' will be resolved against the current working
+directory.
 
 Configuration options:
 * `aliases` - An object mapping aliases to their replacements.
@@ -83,9 +83,10 @@ When you specify:
         "d3": "./shims/d3.js"
     }
 
-The "./" means this will be resolved relative to the configuration file which contains the line.
-Sometimes it is desirable to literally replace an alias; to resolve the alias relative to the
-file which is doing the `require` call.  In this case you can do:
+The "./" means this will be resolved relative to the current working directory (or relative to the
+configuration file which contains the line, in the case where configuration is loaded from
+package.json.)  Sometimes it is desirable to literally replace an alias; to resolve the alias
+relative to the file which is doing the `require` call.  In this case you can do:
 
     aliases: {
         "d3": {"relative": "./shims/d3.js"}

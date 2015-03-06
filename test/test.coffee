@@ -32,6 +32,23 @@ describe "aliasify", ->
             done()
 
     it "should allow configuration to be specified programatically", (done) ->
+        process.chdir testDir
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
+        aliasifyConfig = {
+            aliases: {
+                "d3": "./foo/bar.js"
+            }
+        }
+
+        transformTools.runTransform aliasify, jsFile, {config: aliasifyConfig}, (err, result) ->
+            return done err if err
+            assert.equal result, """
+                d3 = require('./../foo/bar.js');
+                _ = require("underscore");
+            """
+            done()
+
+    it "should allow configuration to be specified using legacy 'configure' method", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
         aliasifyWithConfig = aliasify.configure {
             aliases: {

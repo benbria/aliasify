@@ -20,21 +20,7 @@ build = (done) ->
 mocha = (done) ->
     console.log "Testing"
 
-    options = []
-    options.push '--compilers'
-    options.push 'coffee:coffee-script'
-
-    # Colors!
-    options.push '-c'
-
-    # Run everything in the `test` folder.
-    options.push '--recursive'
-    options.push 'test'
-
-    options.push '--reporter'
-    options.push 'spec'
-
-    launch './node_modules/.bin/mocha', options, done
+    launch './node_modules/.bin/mocha', done
 
 run = (fn) ->
     ->

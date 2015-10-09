@@ -1,7 +1,7 @@
 path = require 'path'
 assert = require 'assert'
 transformTools = require 'browserify-transform-tools'
-
+Mocha = require 'mocha'
 aliasify = require '../src/aliasify'
 testDir = path.resolve __dirname, "../testFixtures/test"
 testWithRelativeConfigDir = path.resolve __dirname, "../testFixtures/testWithRelativeConfig"
@@ -17,10 +17,10 @@ describe "aliasify", ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
         transformTools.runTransform aliasify, jsFile, (err, result) ->
             return done err if err
-            assert.equal result, """
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 d3 = require('./../shims/d3.js');
                 _ = require('lodash');
-            """
+            """)
             done()
 
     it "should correctly transform a file when the configuration is in a different directory", (done) ->
@@ -42,10 +42,10 @@ describe "aliasify", ->
 
         transformTools.runTransform aliasify, jsFile, {config: aliasifyConfig}, (err, result) ->
             return done err if err
-            assert.equal result, """
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 d3 = require('./../foo/baz.js');
                 _ = require("underscore");
-            """
+            """)
             done()
 
     it "should allow configuration to be specified using legacy 'configure' method", (done) ->
@@ -59,10 +59,10 @@ describe "aliasify", ->
 
         transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
             return done err if err
-            assert.equal result, """
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 d3 = require('./../foo/bar.js');
                 _ = require("underscore");
-            """
+            """)
             done()
 
     it "should allow paths after an alias", (done) ->
@@ -75,12 +75,12 @@ describe "aliasify", ->
             configDir: path.resolve __dirname, "../testFixtures/test"
         }
 
-        content = """
+        content = Mocha.utils.clean("""
             d3 = require("d3/bar.js");
-        """
-        expectedContent = """
+        """)
+        expectedContent = Mocha.utils.clean("""
             d3 = require('./../foo/bar.js');
-        """
+        """)
 
         transformTools.runTransform aliasifyWithConfig, jsFile, {content}, (err, result) ->
             return done err if err
@@ -91,7 +91,7 @@ describe "aliasify", ->
         jsFile = path.resolve __dirname, "../testFixtures/test/package.json"
         transformTools.runTransform aliasify, jsFile, (err, result) ->
             return done err if err
-            assert.equal result, """{
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""{
                 "aliasify": {
                     "aliases": {
                         "d3": "./shims/d3.js",
@@ -99,7 +99,7 @@ describe "aliasify", ->
                     }
                 }
             }
-            """
+            """)
             done()
 
     it "passes supports relative path option", (done) ->
@@ -111,9 +111,9 @@ describe "aliasify", ->
             }
         }
 
-        expectedContent = """
+        expectedContent = Mocha.utils.clean("""
             var foo = require('../foo/foo.js');
-        """
+        """)
 
         transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
             return done err if err
@@ -131,10 +131,10 @@ describe "aliasify", ->
         jsFile = path.resolve __dirname, "../testFixtures/react/includeReact.js"
         transformTools.runTransform aliasify, jsFile, (err, result) ->
             return done err if err
-            assert.equal result, """
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 react1 = require('react/addons');
                 react2 = require('react/addons');
-            """
+            """)
             done()
 
     it "should correctly resolve Windows absolute paths", (done) ->
@@ -146,14 +146,14 @@ describe "aliasify", ->
             }
         }
 
-        content = """
+        content = Mocha.utils.clean("""
             foo = require("foo");
-        """
+        """)
         # Note the \\\\ here, because this is in "s, but this resolves to a double \\.
         # The double \\ is still needed, since \\ inside of ''s resolves to a single \ in the end.
-        expectedContent = """
+        expectedContent = Mocha.utils.clean("""
             foo = require('c:\\\\foo.js');
-        """
+        """)
 
         transformTools.runTransform aliasifyWithConfig, jsFile, {content}, (err, result) ->
             return done err if err
@@ -169,12 +169,12 @@ describe "aliasify", ->
             }
         }
 
-        content = """
+        content = Mocha.utils.clean("""
             foo = require("foo");
-        """
-        expectedContent = """
+        """)
+        expectedContent = Mocha.utils.clean("""
             foo = require('#{jsFile.replace(/\\/gi, '\\\\')}');
-        """
+        """)
 
         transformTools.runTransform aliasifyWithConfig, jsFile, {content}, (err, result) ->
             return done err if err

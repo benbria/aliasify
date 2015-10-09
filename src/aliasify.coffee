@@ -6,7 +6,7 @@ getReplacement = (file, aliases, regexps)->
         re = new RegExp(key)
         if re.test(file)
             if typeof regexps[key] == "Function"
-                return regexps[key](key, file, re)
+                return regexps[key](file, key, re)
             else
                 return file.replace(re, regexps[key])
 

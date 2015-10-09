@@ -202,7 +202,7 @@ describe "aliasify", ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/regexp.js"
         aliasifyWithConfig = aliasify.configure {
             replacements: {
-                "_components/(\\w+)": (alias, file, re) ->
+                "_components/(\\w+)": (alias, regexMatcher, regexObject) ->
                     return "src/silly.js"
             }
         }

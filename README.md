@@ -70,6 +70,7 @@ directory.
 
 Configuration options:
 * `aliases` - An object mapping aliases to their replacements.
+* `replacements` - An object mapping RegExp strings with RegExp replacements, or a function that will return a replacement.
 * `verbose` - If true, then aliasify will print modificiations it is making to stdout.
 * `configDir` - An absolute path to resolve relative paths against.  If you're using package.json, this will automatically be filled in for you with the directory containing package.json.  If you're using a .js file for configuration, set this to `__dirname`.
 * `appliesTo` - Controls which files will be transformed.  By default, only JS type files will be transformed ('.js', '.coffee', etc...).  See [browserify-trasnform-tools documentation](https://github.com/benbria/browserify-transform-tools/wiki/Transform-Configuration#common-configuration) for details.
@@ -94,6 +95,32 @@ relative to the file which is doing the `require` call.  In this case you can do
 
 This will cause all occurences of `require("d3")` to be replaced with `require("./shims/d3.js")`,
 regardless of where those files are in the directory tree.
+
+Regular Expression Aliasing
+===========================
+You can use the `replacements` configuration section to create more powerful aliasing.  This can be especially useful if you
+have a large project but don't want to manually add an alias for every single file.  It is also useful when you want to combine
+aliasify with other teansforms, such as hbsfy, reactify, or coffeeify.
+
+    replacements: {
+        "_components/(\\w+)": "src/react/components/$1/index.jsx
+    }
+
+Will let you replace `require('_components/SomeCoolReactComponent')` with `require('src/react/components/SomeCoolReactComponent/index.js')`
+
+You can also match an alias and pass a function which can return a new file name.
+
+`require("_coffee/delicious-coffee");`
+
+Using this configuration:
+    replacements: {
+        "_coffee/(\\w+)": function (alias, regexMatch, regexObject) {
+            console.log(alias); // _coffee/delicious-coffee
+            console.log(regexMatch); // _coffee/(\\w+)
+            return 'coffee.js'; // default behavior - won't replace
+        }
+    }
+
 
 
 Alternatives

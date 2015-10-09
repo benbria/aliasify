@@ -5,7 +5,10 @@ getReplacement = (file, aliases, regexps)->
     for key of regexps
         re = new RegExp(key)
         if re.test(file)
-            return file.replace(re, regexps[key])
+            if typeof regexps[key] == "Function"
+                return regexps[key](key, file, re)
+            else
+                return file.replace(re, regexps[key])
 
     if aliases[file]
         return aliases[file]
@@ -22,6 +25,7 @@ module.exports = transformTools.makeRequireTransform "aliasify", {jsFilesOnly: t
     aliases = opts.config.aliases
     regexps = opts.config.replacements
     verbose = opts.config.verbose
+
     configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
 
     result = null

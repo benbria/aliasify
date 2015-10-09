@@ -180,3 +180,20 @@ describe "aliasify", ->
             return done err if err
             assert.equal result, expectedContent
             done()
+
+    it "should correctly replace a RexExp alias", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/regexp.js"
+        aliasifyWithConfig = aliasify.configure {
+            replacements: {
+                "_components/(\\w+)": "src/components/$1.jsx"
+            }
+        }
+
+        expectedContent = Mocha.utils.clean("""
+            SomeComponent = require('src/components/SomeComponent.jsx');
+        """)
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, expectedContent
+            done()

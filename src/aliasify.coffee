@@ -1,7 +1,12 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
-getReplacement = (file, aliases)->
+getReplacement = (file, aliases, regexps)->
+    for key of regexps
+        re = new RegExp(key)
+        if re.test(file)
+            return file.replace(re, regexps[key])
+
     if aliases[file]
         return aliases[file]
     else
@@ -9,19 +14,21 @@ getReplacement = (file, aliases)->
         pkg = aliases[fileParts?[1]]
         if pkg?
             return pkg+fileParts[2]
+
     return null
 
 module.exports = transformTools.makeRequireTransform "aliasify", {jsFilesOnly: true, fromSourceFileDir: true}, (args, opts, done) ->
     if !opts.config then return done new Error("Could not find configuration for aliasify")
     aliases = opts.config.aliases
+    regexps = opts.config.replacements
     verbose = opts.config.verbose
     configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
 
     result = null
 
     file = args[0]
-    if file? and aliases?
-        replacement = getReplacement(file, aliases)
+    if file? and (aliases? or regexps?)
+        replacement = getReplacement(file, aliases, regexps)
         if replacement?
             if replacement.relative?
                 replacement = replacement.relative

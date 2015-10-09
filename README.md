@@ -98,9 +98,9 @@ regardless of where those files are in the directory tree.
 
 Regular Expression Aliasing
 ===========================
-You can use the `replacements` configuration section to create more powerful aliasing.  This can be especially useful if you
-have a large project but don't want to manually add an alias for every single file.  It is also useful when you want to combine
-aliasify with other teansforms, such as hbsfy, reactify, or coffeeify.
+You can use the `replacements` configuration section to create more powerful aliasing.  This is useful if you
+have a large project but don't want to manually add an alias for every single file.  It is also incredibly useful when you want to combine
+aliasify with other transforms, such as hbsfy, reactify, or coffeeify.
 
     replacements: {
         "_components/(\\w+)": "src/react/components/$1/index.jsx

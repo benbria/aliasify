@@ -113,6 +113,7 @@ You can also match an alias and pass a function which can return a new file name
 `require("_coffee/delicious-coffee");`
 
 Using this configuration:
+
     replacements: {
         "_coffee/(\\w+)": function (alias, regexMatch, regexObject) {
             console.log(alias); // _coffee/delicious-coffee

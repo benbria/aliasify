@@ -215,3 +215,25 @@ describe "aliasify", ->
             return done err if err
             assert.equal result, expectedContent
             done()
+
+    it "should correctly replace multiple RexExp alias functions (scoping)", (done) ->
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/regexp2.js"
+        aliasifyWithConfig = aliasify.configure {
+            replacements: {
+                "_component/(.*)": (alias, regexMatcher, regexObject) ->
+                    return alias.replace(regexObject, 'src/silly.js')
+                "_store/(.*)": (alias, regexMatcher, regexObject) ->
+                    return alias.replace(regexObject, 'src/stores/$1/index.js')
+
+            }
+        }
+
+        expectedContent = Mocha.utils.clean("""
+            SomeComponent = require('src/silly.js');
+            SomeStore = require('src/stores/SomeStore/index.js');
+        """)
+
+        transformTools.runTransform aliasifyWithConfig, jsFile, (err, result) ->
+            return done err if err
+            assert.equal Mocha.utils.clean(result), expectedContent
+            done()

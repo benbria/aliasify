@@ -106,7 +106,7 @@ aliasify with other transforms, such as hbsfy, reactify, or coffeeify.
         "_components/(\\w+)": "src/react/components/$1/index.jsx
     }
 
-Will let you replace `require('_components/SomeCoolReactComponent')` with `require('src/react/components/SomeCoolReactComponent/index.js')`
+Will let you replace `require('_components/SomeCoolReactComponent')` with `require('src/react/components/SomeCoolReactComponent/index.jsx')`
 
 You can also match an alias and pass a function which can return a new file name.
 

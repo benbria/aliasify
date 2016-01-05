@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/benbria/node-amqp-connection-manager.svg?branch=v1.3.0)](https://travis-ci.org/benbria/node-amqp-connection-manager)
+[![Build Status](https://travis-ci.org/benbria/aliasify.svg)](https://travis-ci.org/benbria/aliasify)
 [![Coverage Status](https://coveralls.io/repos/benbria/aliasify/badge.svg?branch=master&service=github)](https://coveralls.io/github/benbria/aliasify?branch=master)
 
 Aliasify is a [transform](https://github.com/substack/node-browserify#btransformtr) for [browserify](https://github.com/substack/node-browserify) which lets you rewrite calls to `require`.

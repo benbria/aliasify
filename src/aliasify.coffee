@@ -1,22 +1,24 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
-getReplacement = (file, aliases, regexps)->
-    for key of regexps
-        re = new RegExp(key)
-        if re.test(file)
-            if typeof regexps[key] == "function"
-                return regexps[key](file, key, re)
-            else
-                return file.replace(re, regexps[key])
+getReplacement = (file, aliases, regexps) ->
+    if regexps?
+        for key of regexps
+            re = new RegExp(key)
+            if re.test(file)
+                if typeof regexps[key] == "function"
+                    return regexps[key](file, key, re)
+                else
+                    return file.replace(re, regexps[key])
 
-    if aliases[file]
-        return aliases[file]
-    else
-        fileParts = /^([^\/]*)(\/.*)$/.exec(file)
-        pkg = aliases[fileParts?[1]]
-        if pkg?
-            return pkg+fileParts[2]
+    if aliases?
+        if aliases[file]
+            return aliases[file]
+        else
+            fileParts = /^([^\/]*)(\/.*)$/.exec(file)
+            pkg = aliases[fileParts?[1]]
+            if pkg?
+                return pkg+fileParts[2]
 
     return null
 

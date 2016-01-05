@@ -48,6 +48,24 @@ describe "aliasify", ->
             """)
             done()
 
+    it "should work if there are regexes and no aliases", (done) ->
+        process.chdir testDir
+        jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
+        aliasifyConfig = {
+            aliases: null
+            replacements: {
+                "d3.*": "./foo/baz.js"
+            }
+        }
+
+        transformTools.runTransform aliasify, jsFile, {config: aliasifyConfig}, (err, result) ->
+            return done err if err
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = require('./../foo/baz.js');
+                _ = require("underscore");
+            """)
+            done()
+
     it "should allow configuration to be specified using legacy 'configure' method", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
         aliasifyWithConfig = aliasify.configure {

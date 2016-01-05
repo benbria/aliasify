@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/benbria/node-amqp-connection-manager.svg?branch=v1.3.0)](https://travis-ci.org/benbria/node-amqp-connection-manager)
+[![Coverage Status](https://coveralls.io/repos/benbria/aliasify/badge.svg?branch=master&service=github)](https://coveralls.io/github/benbria/aliasify?branch=master)
+
 Aliasify is a [transform](https://github.com/substack/node-browserify#btransformtr) for [browserify](https://github.com/substack/node-browserify) which lets you rewrite calls to `require`.
 
 Installation
@@ -130,4 +133,3 @@ Alternatives
 `aliasify` is essentially a fancy version of the [`browser` field](https://gist.github.com/defunctzombie/4339901#replace-specific-files---advanced) from package.json, which is [interpreted](https://github.com/substack/node-browserify#packagejson) by browserify.
 
 Using the `browser` field is probably going to be faster, as it doesn't involve running a transform on each of your files.  On the other hand, `aliasify` gives you a finer degree of control and can be run before other transforms (for example, you can run `aliasify` before [debowerify](https://github.com/eugeneware/debowerify), which will let you replace certain components that debowerify would otherwise replace.)
-

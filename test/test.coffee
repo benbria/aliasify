@@ -1,10 +1,21 @@
+require('es6-promise').polyfill()
+
 path = require 'path'
 assert = require 'assert'
 transformTools = require 'browserify-transform-tools'
 Mocha = require 'mocha'
+pb = require 'promise-breaker'
 aliasify = require '../src/aliasify'
 testDir = path.resolve __dirname, "../testFixtures/test"
 testWithRelativeConfigDir = path.resolve __dirname, "../testFixtures/testWithRelativeConfig"
+
+runTestWithConfig = pb.make (aliasifyConfig, content=null, done) ->
+    process.chdir testDir
+    jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
+    options = {config: aliasifyConfig}
+    if content then options.content = content
+    transformTools.runTransform aliasify, jsFile, options, done
+
 
 describe "aliasify", ->
     cwd = process.cwd()
@@ -31,40 +42,67 @@ describe "aliasify", ->
             assert.equal result, "d3 = require('./../shims/d3.js');"
             done()
 
-    it "should allow configuration to be specified programatically", (done) ->
-        process.chdir testDir
-        jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
-        aliasifyConfig = {
-            aliases: {
-                "d3": "./foo/baz.js"
-            }
-        }
-
-        transformTools.runTransform aliasify, jsFile, {config: aliasifyConfig}, (err, result) ->
-            return done err if err
+    it "should allow configuration to be specified programatically", ->
+        runTestWithConfig {aliases: {"d3": "./foo/baz.js"}}
+        .then (result) ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 d3 = require('./../foo/baz.js');
                 _ = require("underscore");
             """)
-            done()
 
-    it "should work if there are regexes and no aliases", (done) ->
-        process.chdir testDir
-        jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
-        aliasifyConfig = {
+    it "should allow removal of requires", ->
+        runTestWithConfig {aliases: {"d3": false}}
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = {};
+                _ = require("underscore");
+            """)
+
+    it "should allow removal of requires from code with path after alias", ->
+        runTestWithConfig(
+            {aliases: {"d3": false}},
+            """
+                d3 = require("d3/suffix.js");
+                _ = require("underscore");
+            """
+        )
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = {};
+                _ = require("underscore");
+            """)
+
+    it "should allow removal of requires via regex", ->
+        runTestWithConfig {replacements: {"^d3$": false}, aliases: {}}
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = {};
+                _ = require("underscore");
+            """)
+
+    it "should work if there are regexes and no aliases", ->
+        runTestWithConfig {
             aliases: null
             replacements: {
                 "d3.*": "./foo/baz.js"
             }
         }
-
-        transformTools.runTransform aliasify, jsFile, {config: aliasifyConfig}, (err, result) ->
-            return done err if err
+        .then (result) ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 d3 = require('./../foo/baz.js');
                 _ = require("underscore");
             """)
-            done()
+
+    it "should work if there are no regexes and no aliases", ->
+        runTestWithConfig {
+            aliases: null
+            replacements: null
+        }
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = require("d3");
+                _ = require("underscore");
+            """)
 
     it "should allow configuration to be specified using legacy 'configure' method", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
@@ -83,7 +121,23 @@ describe "aliasify", ->
             """)
             done()
 
-    it "should allow paths after an alias", (done) ->
+    it "should allow paths after an alias", ->
+        runTestWithConfig(
+            {
+                aliases: {"d3": "./base/"}
+                configDir: path.resolve __dirname, "../testFixtures/test"
+            },
+            """
+                d3 = require("d3/suffix.js");
+                _ = require("underscore");
+            """
+        ).then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = require('./../base/suffix.js');
+                _ = require("underscore");
+            """)
+
+    it "should allow paths after an alias2", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/src/index.js"
 
         aliasifyWithConfig = aliasify.configure {
@@ -104,6 +158,8 @@ describe "aliasify", ->
             return done err if err
             assert.equal result, expectedContent
             done()
+
+
 
     it "passes anything that isn't javascript along", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/test/package.json"

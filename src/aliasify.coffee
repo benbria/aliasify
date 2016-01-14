@@ -1,24 +1,30 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
+# Returns replacement require, `null` to not change require, `false` to replace require with `{}`.
 getReplacement = (file, aliases, regexps) ->
     if regexps?
         for key of regexps
             re = new RegExp(key)
             if re.test(file)
-                if typeof regexps[key] == "function"
+                if regexps[key] == false
+                    return false
+                else if typeof regexps[key] == "function"
                     return regexps[key](file, key, re)
                 else
                     return file.replace(re, regexps[key])
 
     if aliases?
-        if aliases[file]
+        if file of aliases
             return aliases[file]
         else
             fileParts = /^([^\/]*)(\/.*)$/.exec(file)
-            pkg = aliases[fileParts?[1]]
-            if pkg?
-                return pkg+fileParts[2]
+            if fileParts?[1] of aliases
+                pkg = aliases[fileParts?[1]]
+                if pkg == false
+                    return false
+                else if pkg?
+                    return pkg+fileParts[2]
 
     return null
 
@@ -35,7 +41,9 @@ module.exports = transformTools.makeRequireTransform "aliasify", {jsFilesOnly: t
     file = args[0]
     if file? and (aliases? or regexps?)
         replacement = getReplacement(file, aliases, regexps)
-        if replacement?
+        if replacement == false
+            result = "{}"
+        else if replacement?
             if replacement.relative?
                 replacement = replacement.relative
 

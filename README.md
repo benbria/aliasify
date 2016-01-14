@@ -106,7 +106,7 @@ have a large project but don't want to manually add an alias for every single fi
 aliasify with other transforms, such as hbsfy, reactify, or coffeeify.
 
     replacements: {
-        "_components/(\\w+)": "src/react/components/$1/index.jsx
+        "_components/(\\w+)": "src/react/components/$1/index.jsx"
     }
 
 Will let you replace `require('_components/SomeCoolReactComponent')` with `require('src/react/components/SomeCoolReactComponent/index.jsx')`
@@ -126,6 +126,18 @@ Using this configuration:
     }
 
 
+Stubbing Out Packages
+=====================
+
+You can remove a package entirely for browser builds using:
+
+    aliases: {
+        "d3": "./shims/d3.js"
+    }
+
+Now any code which tries to `require('d3')` will end up compiling to:
+
+    var d3 = {};
 
 Alternatives
 ============

@@ -76,7 +76,7 @@ Configuration options:
 * `replacements` - An object mapping RegExp strings with RegExp replacements, or a function that will return a replacement.
 * `verbose` - If true, then aliasify will print modifications it is making to stdout.
 * `configDir` - An absolute path to resolve relative paths against.  If you're using package.json, this will automatically be filled in for you with the directory containing package.json.  If you're using a .js file for configuration, set this to `__dirname`.
-* `appliesTo` - Controls which files will be transformed.  By default, only JS type files will be transformed ('.js', '.coffee', etc...).  See [browserify-trasnform-tools documentation](https://github.com/benbria/browserify-transform-tools/wiki/Transform-Configuration#common-configuration) for details.
+* `appliesTo` - Controls which files will be transformed.  By default, only JS type files will be transformed ('.js', '.coffee', etc...).  See [browserify-transform-tools documentation](https://github.com/benbria/browserify-transform-tools/wiki/Transform-Configuration#common-configuration) for details.
 
 Relative Requires
 =================

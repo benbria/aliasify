@@ -139,6 +139,29 @@ Now any code which tries to `require('d3')` will end up compiling to:
 
     var d3 = {};
 
+
+Support aliasing requireish function calls
+=====================
+
+You can tell aliasify to also replace aliases in other functions than `require`. This can become very helpful if you are planing on wrap
+node's require function with another one. For example in case of [proxyquireify](https://github.com/thlorenz/proxyquireify) this is very helpful.
+
+```JavaScript
+    var aliasify = require("aliasify").requierish(["foo", "bar"])
+```
+
+with this options:
+
+    aliases: {
+            "d3": {"relative": "./shims/d3.js"}
+        }
+
+Now any code which tries to `require('d3')` or `foo('d3')` or even `bar('d3')` will end up compiling to:
+
+`require("./shims/d3.js")` respectively `foo("./shims/d3.js")` respectively `bar("./shims/d3.js")`
+
+NOTE: The argument for `requireish()` can be either a string or an array of strings. Also note that the function does not modifiy an aliasify instance, it returns a complete new one!
+
 Alternatives
 ============
 

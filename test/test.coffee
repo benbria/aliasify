@@ -16,6 +16,12 @@ runTestWithConfig = pb.make (aliasifyConfig, content=null, done) ->
     if content then options.content = content
     transformTools.runTransform aliasify, jsFile, options, done
 
+runTestWithCustomAliases = pb.make (aliasifyConfig, requireAliases=[], filePath, done) ->
+    process.chdir testDir
+    jsFile = path.resolve __dirname, filePath
+    options = {config: aliasifyConfig}
+    aliasifyWithRequierishFunctions = aliasify.requireish(requireAliases)
+    transformTools.runTransform aliasifyWithRequierishFunctions, jsFile, options, done
 
 describe "aliasify", ->
     cwd = process.cwd()
@@ -194,6 +200,23 @@ describe "aliasify", ->
             assert.equal result, expectedContent
             done()
 
+###
+    it "should support aliasing require calls by a string", ->
+        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, 'foobar', "../testFixtures/test/src/foobar/foobar.js"
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                var foo = foobar('../foo/foo.js');
+                var qux = baz('foo');
+            """)
+
+    it "should support aliasing require calls by an array of strings", ->
+        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, ['foobar', 'baz'], "../testFixtures/test/src/foobar/foobar.js"
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                var foo = foobar('../foo/foo.js');
+                var qux = baz('../foo/foo.js');
+            """)
+###
     it "supports nested packages", (done) ->
         jsFile = path.resolve __dirname, "../testFixtures/testNestedPackages/node_modules/inner-package/foo/foo.js"
         transformTools.runTransform aliasify, jsFile, (err, result) ->

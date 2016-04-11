@@ -1,6 +1,8 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
+requireAliases = ['require']
+
 # Returns replacement require, `null` to not change require, `false` to replace require with `{}`.
 getReplacement = (file, aliases, regexps) ->
     if regexps?
@@ -28,40 +30,52 @@ getReplacement = (file, aliases, regexps) ->
 
     return null
 
-module.exports = transformTools.makeRequireTransform "aliasify", {jsFilesOnly: true, fromSourceFileDir: true}, (args, opts, done) ->
-    if !opts.config then return done new Error("Could not find configuration for aliasify")
-    aliases = opts.config.aliases
-    regexps = opts.config.replacements
-    verbose = opts.config.verbose
+makeTransform = () ->
+    transformTools.makeFunctionTransform "aliasify", {jsFilesOnly: true, fromSourceFileDir: true, functionNames: requireAliases}, (functionParams, opts, done) ->
+        if !opts.config then return done new Error("Could not find configuration for aliasify")
+        aliases = opts.config.aliases
+        regexps = opts.config.replacements
+        verbose = opts.config.verbose
+    
+        configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
+    
+        result = null
 
-    configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
+        file = functionParams.args[0]
+        if file? and (aliases? or regexps?)
+            replacement = getReplacement(file, aliases, regexps)
+            if replacement == false
+                result = "{}"
+            else if replacement?
+                if replacement.relative?
+                    replacement = replacement.relative
 
-    result = null
+                else if /^\./.test(replacement)
+                    # Resolve the new file relative to the configuration file.
+                    replacement = path.resolve configDir, replacement
+                    fileDir = path.dirname opts.file
+                    replacement = "./#{path.relative fileDir, replacement}"
 
-    file = args[0]
-    if file? and (aliases? or regexps?)
-        replacement = getReplacement(file, aliases, regexps)
-        if replacement == false
-            result = "{}"
-        else if replacement?
-            if replacement.relative?
-                replacement = replacement.relative
+                if verbose
+                    console.error "aliasify - #{opts.file}: replacing #{file} with #{replacement} of function #{functionParams.name}"
 
-            else if /^\./.test(replacement)
-                # Resolve the new file relative to the configuration file.
-                replacement = path.resolve configDir, replacement
-                fileDir = path.dirname opts.file
-                replacement = "./#{path.relative fileDir, replacement}"
+                # If this is an absolute Windows path (e.g. 'C:\foo.js') then don't convert \s to /s.
+                if /^[a-zA-Z]:\\/.test(replacement)
+                    replacement = replacement.replace(/\\/gi, "\\\\")
+                else
+                    replacement = replacement.replace(/\\/gi, "/")
 
-            if verbose
-                console.error "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"
+                result = functionParams.name + "('#{replacement}')"
+        
+        done null, result
 
-            # If this is an absolute Windows path (e.g. 'C:\foo.js') then don't convert \s to /s.
-            if /^[a-zA-Z]:\\/.test(replacement)
-                replacement = replacement.replace(/\\/gi, "\\\\")
-            else
-                replacement = replacement.replace(/\\/gi, "/")
+module.exports = makeTransform();
 
-            result = "require('#{replacement}')"
+module.exports.requireish = (aliases) ->
+    if Array.isArray(aliases) || {}.toString.call(aliases) is "[object Array]"
+        for alias in aliases
+            requireAliases.push alias
+    else if typeof aliases is "string"
+        requireAliases.push aliases
 
-    done null, result
+    makeTransform()

@@ -132,7 +132,7 @@ Stubbing Out Packages
 You can remove a package entirely for browser builds using:
 
     aliases: {
-        "d3": "./shims/d3.js"
+        "d3": false
     }
 
 Now any code which tries to `require('d3')` will end up compiling to:

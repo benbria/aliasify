@@ -16,6 +16,13 @@ runTestWithConfig = pb.make (aliasifyConfig, content=null, done) ->
     if content then options.content = content
     transformTools.runTransform aliasify, jsFile, options, done
 
+runTestWithCustomAliases = pb.make (aliasifyConfig, content=null, requireAliases=[], done) ->
+    process.chdir testDir
+    jsFile = path.resolve __dirname, "../testFixtures/test/src/foobar/foobar.js"
+    options = {config: aliasifyConfig}
+    if content then options.content = content
+    aliasifyWithRequierishFunctions = aliasify.requireish(requireAliases)
+    transformTools.runTransform aliasifyWithRequierishFunctions, jsFile, options, done
 
 describe "aliasify", ->
     cwd = process.cwd()
@@ -311,3 +318,33 @@ describe "aliasify", ->
             return done err if err
             assert.equal Mocha.utils.clean(result), expectedContent
             done()
+
+    
+    it "should support aliasing require calls by a string", ->
+        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, null, 'foobar'
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                var foo = foobar('../foo/foo.js');
+                var qux = baz('foo');
+            """)
+    
+    it "should support aliasing require calls by an array of strings", ->
+        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, null, ['foobar', 'baz']
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                var foo = foobar('../foo/foo.js');
+                var qux = baz('../foo/foo.js');
+            """)
+
+    it "should preserve args other than the first", ->
+
+        content = Mocha.utils.clean("""
+                var foo = foobar('foo', 'baz', bar, function (){}, {}, []);
+            """)
+    
+        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, content, 'foobar'
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                var foo = foobar('../foo/foo.js', 'baz', bar, function (){}, {}, []);
+            """)
+    

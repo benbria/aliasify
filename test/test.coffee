@@ -8,6 +8,7 @@ pb = require 'promise-breaker'
 aliasify = require '../src/aliasify'
 testDir = path.resolve __dirname, "../testFixtures/test"
 testWithRelativeConfigDir = path.resolve __dirname, "../testFixtures/testWithRelativeConfig"
+requireishConfigDir = path.resolve __dirname, "../testFixtures/requireishConfig"
 
 runTestWithConfig = pb.make (aliasifyConfig, content=null, done) ->
     process.chdir testDir
@@ -16,13 +17,12 @@ runTestWithConfig = pb.make (aliasifyConfig, content=null, done) ->
     if content then options.content = content
     transformTools.runTransform aliasify, jsFile, options, done
 
-runTestWithCustomAliases = pb.make (aliasifyConfig, content=null, requireAliases=[], done) ->
+runTestWithCustomAliases = pb.make (aliasifyConfig, content=null, done) ->
     process.chdir testDir
     jsFile = path.resolve __dirname, "../testFixtures/test/src/foobar/foobar.js"
     options = {config: aliasifyConfig}
     if content then options.content = content
-    aliasifyWithRequierishFunctions = aliasify.requireish(requireAliases)
-    transformTools.runTransform aliasifyWithRequierishFunctions, jsFile, options, done
+    transformTools.runTransform aliasify, jsFile, options, done
 
 describe "aliasify", ->
     cwd = process.cwd()
@@ -47,6 +47,18 @@ describe "aliasify", ->
         transformTools.runTransform aliasify, jsFile, (err, result) ->
             return done err if err
             assert.equal result, "d3 = require('./../shims/d3.js');"
+            done()
+
+    it "should load requireish options from config", (done) ->
+        console.log requireishConfigDir
+        process.chdir requireishConfigDir
+        jsFile = path.resolve requireishConfigDir, "foobar.js"
+        transformTools.runTransform aliasify, jsFile, (err, result) ->
+            return done err if err
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                var foo = foobar('./foo.js');
+                var qux = baz('foo');
+            """)
             done()
 
     it "should allow configuration to be specified programatically", ->
@@ -319,17 +331,17 @@ describe "aliasify", ->
             assert.equal Mocha.utils.clean(result), expectedContent
             done()
 
-    
+
     it "should support aliasing require calls by a string", ->
-        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, null, 'foobar'
+        runTestWithCustomAliases {aliases: {"foo": { relative: "../foo/foo.js" }}, requireish: 'foobar'}
         .then (result) ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 var foo = foobar('../foo/foo.js');
                 var qux = baz('foo');
             """)
-    
+
     it "should support aliasing require calls by an array of strings", ->
-        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, null, ['foobar', 'baz']
+        runTestWithCustomAliases {aliases: {"foo": { relative: "../foo/foo.js" }}, requireish: ['foobar', 'baz']}
         .then (result) ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 var foo = foobar('../foo/foo.js');
@@ -341,10 +353,9 @@ describe "aliasify", ->
         content = Mocha.utils.clean("""
                 var foo = foobar('foo', 'baz', bar, function (){}, {}, []);
             """)
-    
-        runTestWithCustomAliases {aliases: "foo": { relative: "../foo/foo.js" }}, content, 'foobar'
+
+        runTestWithCustomAliases {aliases: {"foo": { relative: "../foo/foo.js" }}, requireish: 'foobar'}, content
         .then (result) ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 var foo = foobar('../foo/foo.js', 'baz', bar, function (){}, {}, []);
             """)
-    

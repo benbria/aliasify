@@ -1,0 +1,8 @@
+{
+    "aliasify": {
+        "aliases": {
+            "foo": {"relative": "./foo.js"}
+        },
+        "requireish": "foobar"
+    }
+}

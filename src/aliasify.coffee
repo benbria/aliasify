@@ -1,7 +1,7 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
-requireAliases = ['require']
+TRANSFORM_NAME = "aliasify"
 
 # Returns replacement require, `null` to not change require, `false` to replace require with `{}`.
 getReplacement = (file, aliases, regexps) ->
@@ -30,15 +30,19 @@ getReplacement = (file, aliases, regexps) ->
 
     return null
 
-makeTransform = () ->
-    transformTools.makeFunctionTransform "aliasify", {jsFilesOnly: true, fromSourceFileDir: true, functionNames: requireAliases}, (functionParams, opts, done) ->
+makeTransform = (requireAliases) ->
+    transformTools.makeFunctionTransform TRANSFORM_NAME, {
+        jsFilesOnly: true,
+        fromSourceFileDir: true,
+        functionNames: requireAliases
+    }, (functionParams, opts, done) ->
         if !opts.config then return done new Error("Could not find configuration for aliasify")
         aliases = opts.config.aliases
         regexps = opts.config.replacements
         verbose = opts.config.verbose
-    
+
         configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
-    
+
         result = null
 
         file = functionParams.args[0].value
@@ -57,7 +61,8 @@ makeTransform = () ->
                     replacement = "./#{path.relative fileDir, replacement}"
 
                 if verbose
-                    console.error "aliasify - #{opts.file}: replacing #{file} with #{replacement} of function #{functionParams.name}"
+                    console.error "aliasify - #{opts.file}: replacing #{file} with #{replacement} " +
+                        "of function #{functionParams.name}"
 
                 # If this is an absolute Windows path (e.g. 'C:\foo.js') then don't convert \s to /s.
                 if /^[a-zA-Z]:\\/.test(replacement)
@@ -67,16 +72,16 @@ makeTransform = () ->
 
                 result = "'#{replacement}'"
 
-        
+
         # Check if the function has more than one arg. If so preserve the remaining ones.
         if result? and result isnt "{}"
-            remainingArgs = functionParams.args.slice(1);
+            remainingArgs = functionParams.args.slice(1)
             if remainingArgs.length > 0
                 for arg in remainingArgs
                     if arg.type is "Literal"
                         result += ", '#{arg.value}'"
                     else if arg.type is "ObjectExpression"
-                        try 
+                        try
                             result += ", #{JSON.stringify arg.value}"
                         catch err
                             result += ", #{JSON.stringify {}}"
@@ -88,16 +93,20 @@ makeTransform = () ->
                     else
                         result += ", #{arg.value}"
             result = "#{functionParams.name}(#{result})"
-        
+
         done null, result
 
-module.exports = makeTransform();
+module.exports = (file, config) ->
+    requireish = null
+    if config and "requireish" of config
+        requireish = config.requireish
+    else
+        configData = transformTools.loadTransformConfigSync TRANSFORM_NAME, file, {fromSourceFileDir: true}
+        if configData and configData.config and "requireish" of configData.config
+            requireish = configData.config.requireish
 
-module.exports.requireish = (aliases) ->
-    if Array.isArray(aliases) || {}.toString.call(aliases) is "[object Array]"
-        for alias in aliases
-            requireAliases.push alias
-    else if typeof aliases is "string"
-        requireAliases.push aliases
+    wrappedTransform = makeTransform(requireish or ['require'])
+    return wrappedTransform(file, config)
 
-    makeTransform()
+module.exports.configure = (config) ->
+    return (file) -> module.exports file, config

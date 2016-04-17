@@ -1,6 +1,8 @@
 path = require 'path'
 transformTools = require 'browserify-transform-tools'
 
+TRANSFORM_NAME = "aliasify"
+
 # Returns replacement require, `null` to not change require, `false` to replace require with `{}`.
 getReplacement = (file, aliases, regexps) ->
     if regexps?
@@ -28,40 +30,83 @@ getReplacement = (file, aliases, regexps) ->
 
     return null
 
-module.exports = transformTools.makeRequireTransform "aliasify", {jsFilesOnly: true, fromSourceFileDir: true}, (args, opts, done) ->
-    if !opts.config then return done new Error("Could not find configuration for aliasify")
-    aliases = opts.config.aliases
-    regexps = opts.config.replacements
-    verbose = opts.config.verbose
+makeTransform = (requireAliases) ->
+    transformTools.makeFunctionTransform TRANSFORM_NAME, {
+        jsFilesOnly: true,
+        fromSourceFileDir: true,
+        functionNames: requireAliases
+    }, (functionParams, opts, done) ->
+        if !opts.config then return done new Error("Could not find configuration for aliasify")
+        aliases = opts.config.aliases
+        regexps = opts.config.replacements
+        verbose = opts.config.verbose
 
-    configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
+        configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
 
-    result = null
+        result = null
 
-    file = args[0]
-    if file? and (aliases? or regexps?)
-        replacement = getReplacement(file, aliases, regexps)
-        if replacement == false
-            result = "{}"
-        else if replacement?
-            if replacement.relative?
-                replacement = replacement.relative
+        file = functionParams.args[0].value
+        if file? and (aliases? or regexps?)
+            replacement = getReplacement(file, aliases, regexps)
+            if replacement == false
+                result = "{}"
+            else if replacement?
+                if replacement.relative?
+                    replacement = replacement.relative
 
-            else if /^\./.test(replacement)
-                # Resolve the new file relative to the configuration file.
-                replacement = path.resolve configDir, replacement
-                fileDir = path.dirname opts.file
-                replacement = "./#{path.relative fileDir, replacement}"
+                else if /^\./.test(replacement)
+                    # Resolve the new file relative to the configuration file.
+                    replacement = path.resolve configDir, replacement
+                    fileDir = path.dirname opts.file
+                    replacement = "./#{path.relative fileDir, replacement}"
 
-            if verbose
-                console.error "aliasify - #{opts.file}: replacing #{args[0]} with #{replacement}"
+                if verbose
+                    console.error "aliasify - #{opts.file}: replacing #{file} with #{replacement} " +
+                        "of function #{functionParams.name}"
 
-            # If this is an absolute Windows path (e.g. 'C:\foo.js') then don't convert \s to /s.
-            if /^[a-zA-Z]:\\/.test(replacement)
-                replacement = replacement.replace(/\\/gi, "\\\\")
-            else
-                replacement = replacement.replace(/\\/gi, "/")
+                # If this is an absolute Windows path (e.g. 'C:\foo.js') then don't convert \s to /s.
+                if /^[a-zA-Z]:\\/.test(replacement)
+                    replacement = replacement.replace(/\\/gi, "\\\\")
+                else
+                    replacement = replacement.replace(/\\/gi, "/")
 
-            result = "require('#{replacement}')"
+                result = "'#{replacement}'"
 
-    done null, result
+
+        # Check if the function has more than one arg. If so preserve the remaining ones.
+        if result? and result isnt "{}"
+            remainingArgs = functionParams.args.slice(1)
+            if remainingArgs.length > 0
+                for arg in remainingArgs
+                    if arg.type is "Literal"
+                        result += ", '#{arg.value}'"
+                    else if arg.type is "ObjectExpression"
+                        try
+                            result += ", #{JSON.stringify arg.value}"
+                        catch err
+                            result += ", #{JSON.stringify {}}"
+                    else if arg.type is "ArrayExpression"
+                        try
+                            result += ", #{JSON.stringify arg.value}"
+                        catch err
+                            result += ", #{JSON.stringify []}"
+                    else
+                        result += ", #{arg.value}"
+            result = "#{functionParams.name}(#{result})"
+
+        done null, result
+
+module.exports = (file, config) ->
+    requireish = null
+    if config and "requireish" of config
+        requireish = config.requireish
+    else
+        configData = transformTools.loadTransformConfigSync TRANSFORM_NAME, file, {fromSourceFileDir: true}
+        if configData and configData.config and "requireish" of configData.config
+            requireish = configData.config.requireish
+
+    wrappedTransform = makeTransform(requireish or ['require'])
+    return wrappedTransform(file, config)
+
+module.exports.configure = (config) ->
+    return (file) -> module.exports file, config

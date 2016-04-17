@@ -147,7 +147,7 @@ You can tell aliasify to also replace aliases in other functions than `require`.
 node's require function with another one. For example in case of [proxyquireify](https://github.com/thlorenz/proxyquireify) this is very helpful.
 
 ```JavaScript
-    var aliasify = require("aliasify").requireish(["foo", "bar"])
+    var aliasify = require("aliasify").requireish(["require", "foo", "bar"])
 ```
 
 with this options:
@@ -160,7 +160,15 @@ Now any code which tries to `require('d3')` or `foo('d3')` or even `bar('d3')` w
 
 `require("./shims/d3.js")` respectively `foo("./shims/d3.js")` respectively `bar("./shims/d3.js")`
 
-NOTE: The argument for `requireish()` can be either a string or an array of strings. Also note that the function does not modifiy an aliasify instance, it returns a complete new one! Another important thing to know is that aliasify only replaces the first string parameter of the "requireish" function call. All other arguments are preserved as they were passed in. Caution! Do NOT pass in arguments that have circular references. If you need that, than just pass in an identifier for the object having circular references!
+The argument for `requireish()` can be either a string or an array of strings.
+
+A few things to note: first, if you specify `requireish`, you must explicitly list `require` in the list of requireish
+things to transform, or it won't be.
+
+Second, note that aliasify only replaces the first string parameter of the "requireish" function call. All other
+arguments are preserved as they were passed in. (e.g. `require('d3', 'foo')` turns into
+`require('./shims/d3.js', 'foo')`.)  Caution! Do NOT pass in arguments that have circular references. If you need that,
+than just pass in an identifier for the object having circular references!
 
 Alternatives
 ============

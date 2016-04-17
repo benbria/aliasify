@@ -1,3 +1,9 @@
+* 2.0.0
+    * Add support for `requireish` (many thanks to [kamekazemaster](https://github.com/kamekazemaster).)
+    * BREAKING CHANGE: Calling `configure()` to set configuration programatically still works, but is considered
+      deprecated and may be removed in a future release.  `setConfig()` has been removed.  We've done some slightly
+      exciting things with how configuration gets loaded; all tests are passing, but if you run into a problem,
+      please be sure to raise an issue.
 * 1.7.0 - Correct handling of absolute paths on Windows (courtesy [Ronald M. Clifford](https://github.com/roncli))
 * 1.6.0
     * Add support for passing configuration directly via browserify (added in Browserify v3.41.0?)

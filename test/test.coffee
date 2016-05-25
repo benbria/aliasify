@@ -50,7 +50,6 @@ describe "aliasify", ->
             done()
 
     it "should load requireish options from config", (done) ->
-        console.log requireishConfigDir
         process.chdir requireishConfigDir
         jsFile = path.resolve requireishConfigDir, "foobar.js"
         transformTools.runTransform aliasify, jsFile, (err, result) ->
@@ -66,6 +65,15 @@ describe "aliasify", ->
         .then (result) ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 d3 = require('./../foo/baz.js');
+                _ = require("underscore");
+            """)
+
+    it "should allow setting the replacement path absolute", ->
+        absolutePath = path.resolve process.cwd(), './foo/baz.js'
+        runTestWithConfig {aliases: {"d3": "./foo/baz.js"}, absolutePaths: true}
+        .then (result) ->
+            assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
+                d3 = require('#{absolutePath}');
                 _ = require("underscore");
             """)
 

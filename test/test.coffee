@@ -367,3 +367,8 @@ describe "aliasify", ->
             assert.equal Mocha.utils.clean(result), Mocha.utils.clean("""
                 var foo = foobar('../foo/foo.js', 'baz', bar, function (){}, {}, []);
             """)
+
+    it "should return the right absolute path through the getReplacement method", ->
+        absolutePath = path.resolve process.cwd(), './foo/baz.js'
+        path = aliasify.getReplacement "d3", {aliases: {"d3": "./foo/baz.js"}}
+        assert.equal Mocha.utils.clean(path), Mocha.utils.clean(absolutePath)

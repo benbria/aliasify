@@ -112,3 +112,15 @@ module.exports = (file, config) ->
 
 module.exports.configure = (config) ->
     return (file) -> module.exports file, config
+
+module.exports.getReplacement = (alias, config) ->
+    if !config then return new Error("Could not find configuration for aliasify")
+    aliases = config.aliases
+    regexps = config.replacements
+
+    replacement = getReplacement alias, aliases, regexps
+    if replacement?
+        configDir = config.configDir or process.cwd()
+        path.resolve configDir, replacement
+    else
+        false

@@ -99,6 +99,20 @@ relative to the file which is doing the `require` call.  In this case you can do
 This will cause all occurences of `require("d3")` to be replaced with `require("./shims/d3.js")`,
 regardless of where those files are in the directory tree.
 
+Absolute Replacements
+=================
+
+When you specify:
+
+    aliases: {
+        "d3": "./shims/d3.js"
+    },
+    absolutePaths: true
+
+
+This will cause all occurences of `require("d3")` to be replaced with `require("[absolute path to d3.js]")`,
+regardless of where those files are in the directory tree.
+
 Regular Expression Aliasing
 ===========================
 You can use the `replacements` configuration section to create more powerful aliasing.  This is useful if you
@@ -147,28 +161,54 @@ You can tell aliasify to also replace aliases in other functions than `require`.
 node's require function with another one. For example in case of [proxyquireify](https://github.com/thlorenz/proxyquireify) this is very helpful.
 
 ```JavaScript
-    var aliasify = require("aliasify").requireish(["require", "foo", "bar"])
+    var aliasify = require("aliasify");
 ```
 
 with this options:
 
     aliases: {
-            "d3": {"relative": "./shims/d3.js"}
-        }
+            "d3": "./shims/d3.js"
+        },
+    requireish: ["require", "foo", "bar"]
 
 Now any code which tries to `require('d3')` or `foo('d3')` or even `bar('d3')` will end up compiling to:
 
 `require("./shims/d3.js")` respectively `foo("./shims/d3.js")` respectively `bar("./shims/d3.js")`
 
-The argument for `requireish()` can be either a string or an array of strings.
+The argument for `requireish` can be either a string or an array of strings.
 
 A few things to note: first, if you specify `requireish`, you must explicitly list `require` in the list of requireish
 things to transform, or it won't be.
 
 Second, note that aliasify only replaces the first string parameter of the "requireish" function call. All other
-arguments are preserved as they were passed in. (e.g. `require('d3', 'foo')` turns into
+arguments are preserved as they were passed in. (e.g. `require('d3', 'foo')` gets transformed to
 `require('./shims/d3.js', 'foo')`.)  Caution! Do NOT pass in arguments that have circular references. If you need that,
 than just pass in an identifier for the object having circular references!
+
+
+Manually get absolute replacement path
+=====================
+
+You can manually get the absolute path to a replacement from an alias:
+
+```JavaScript
+    var aliasify = require("aliasify");
+
+    var aliasifyConfig = {
+      aliases: {
+                  "d3": "./shims/d3.js"
+              }
+    }
+
+    var path = aliasify.getReplacement("d3", aliasifyConfig);
+```
+
+Now `path` is the absolute path to `d3.js`.
+If no replacement is found the function returns `false`.
+
+Note that the manual method just concatenates `configDir` with the matching entry in `aliases` or `replacement` part from the aliasify config you pass in.
+In order to work properly you have to ensure that this concatenation (through `path.resolve`) makes sense, *e.g.* `configDir = [projectRoot]` and aliases part from the config has entries relative from this `configDir`.
+
 
 Alternatives
 ============

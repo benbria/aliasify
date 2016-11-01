@@ -20,7 +20,7 @@
     "lib": "./lib"
   },
   "dependencies": {
-    "browserify-transform-tools": "~1.6.0"
+    "browserify-transform-tools": "~1.7.0"
   },
   "devDependencies": {
     "coffee-coverage": "^0.7.0",

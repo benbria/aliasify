@@ -40,6 +40,7 @@ makeTransform = (requireAliases) ->
         aliases = opts.config.aliases
         regexps = opts.config.replacements
         verbose = opts.config.verbose
+        absolutePaths = opts.config.absolutePaths
 
         configDir = opts.configData?.configDir or opts.config.configDir or process.cwd()
 
@@ -55,10 +56,11 @@ makeTransform = (requireAliases) ->
                     replacement = replacement.relative
 
                 else if /^\./.test(replacement)
-                    # Resolve the new file relative to the configuration file.
+                    # Resolve the new file relative to the configuration file or system absolute
                     replacement = path.resolve configDir, replacement
-                    fileDir = path.dirname opts.file
-                    replacement = "./#{path.relative fileDir, replacement}"
+                    if !absolutePaths
+                        fileDir = path.dirname opts.file
+                        replacement = "./#{path.relative fileDir, replacement}"
 
                 if verbose
                     console.error "aliasify - #{opts.file}: replacing #{file} with #{replacement} " +
@@ -110,3 +112,15 @@ module.exports = (file, config) ->
 
 module.exports.configure = (config) ->
     return (file) -> module.exports file, config
+
+module.exports.getReplacement = (alias, config) ->
+    if !config then return new Error("Could not find configuration for aliasify")
+    aliases = config.aliases
+    regexps = config.replacements
+
+    replacement = getReplacement alias, aliases, regexps
+    if replacement?
+        configDir = config.configDir or process.cwd()
+        path.resolve configDir, replacement
+    else
+        false

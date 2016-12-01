@@ -112,6 +112,14 @@ describe "aliasify", ->
                 _ = require("underscore");
             """)
 
+    it "should correctly transform a file-relative regexp replacement", (done) ->
+        process.chdir testWithRelativeConfigDir
+        jsFile = path.resolve __dirname, "../testFixtures/regexTestWithFileRelativeConfig/src/index.js"
+        transformTools.runTransform aliasify, jsFile, (err, result) ->
+            return done err if err
+            assert.equal result, "d3 = require('../shims/d3.js');"
+            done()
+
     it "should work if there are no regexes and no aliases", ->
         runTestWithConfig {
             aliases: null

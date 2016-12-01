@@ -13,6 +13,8 @@ getReplacement = (file, aliases, regexps) ->
                     return false
                 else if typeof regexps[key] == "function"
                     return regexps[key](file, key, re)
+                else if regexps[key]? and regexps[key].relative?
+                    return { relative: file.replace(re, regexps[key].relative) }
                 else
                     return file.replace(re, regexps[key])
 
